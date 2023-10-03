@@ -45,3 +45,16 @@ header{
 .seperateLine{
   border-top: solid 2px var(--main-color);
 }
+
+.card{
+  width: 100%;
+  height: 100%;
+}
+
+.disabled{
+  display: none;
+}
+
+.abled{
+  display: flex;
+}
