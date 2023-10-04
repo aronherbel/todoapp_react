@@ -58,3 +58,21 @@ header{
 .abled{
   display: flex;
 }
+
+.Card{
+ position: relative;
+}
+
+.priorityCard{
+  border: solid 3px var(--main-color);
+}
+
+.check:hover{
+ cursor: pointer;
+ color: var(--main-color);
+}
+
+.priorityStar:hover{
+  cursor: pointer;
+  color: yellow;
+ }

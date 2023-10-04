@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useReducer, useState } from "react";
 import "./App.css";
 import {
   Accordion,
@@ -16,8 +16,13 @@ import {
 } from "@mui/material";
 import { dunkelColor, mainColor, secondaryColor } from "./colors";
 import { deepOrange } from "@mui/material/colors";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import {
+  AddCircleOutline,
+  ExpandMore,
+  CheckCircleOutlineRounded,
+  StarBorderRounded,
+  MoreHoriz
+} from "@mui/icons-material/";
 
 //TASK ARRAY
 
@@ -32,7 +37,7 @@ export function BasicAccordion() {
     <div>
       <Accordion>
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<ExpandMore />}
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
@@ -53,43 +58,61 @@ export type CardFieldNormalProps = {
   taskName: string;
   isPriority: boolean;
   isDone: boolean;
+  checkTask: any;
+  priorityTask: any;
+  //deleteTask: any;
 };
 
 export const CardfieldNormal: FC<CardFieldNormalProps> = ({
   taskName,
   isPriority,
   isDone,
+  checkTask,
+  priorityTask,
 }) => {
   return (
-    <Box sx={{ height: "50%", margin: "1em" }}>
-      <Card variant="outlined">
+    <Box
+      sx={{ height: "50%", margin: "1em" }}
+      >
+      <Card variant="outlined" className="Card ">
         <CardContent
+          className={isPriority ? "priorityCard" : ""}
           sx={{
             fontSize: 14,
             backgroundColor: isDone ? secondaryColor : "",
-            borderColor: "black",
           }}
-          className={isPriority ? "priority" : ""}
-        >
+          >
           <Typography color="text.secondary" gutterBottom>
-            Your To do
-          </Typography>
-          <Typography variant="h5" component="div">
-            {taskName}
-          </Typography>
-          <Typography sx={{ mb: 1.5 }} color="text.secondary">
             {isDone ? "Done" : ""}
             {isPriority ? "Important" : ""}
             {!isDone && !isPriority ? "Task" : ""}
           </Typography>
+          <Typography variant="h5" component="div">
+            {taskName}
+          </Typography>
+          <Typography sx={{ mb: 1.5 }} color="text.secondary"></Typography>
           <Typography variant="body2">
             <BasicAccordion />
             <br />
           </Typography>
+          <CardActions>
+            <StarBorderRounded
+              className="priorityStar"
+              sx={{
+                position: "absolute",
+                top: ".2em",
+                right: ".1em",
+                color: isPriority ? "#ffcf40" : "",
+              }}
+              onClick={priorityTask}
+            />
+            <CheckCircleOutlineRounded
+              className="check"
+              sx={{ position: "absolute", bottom: ".2em", left: ".1em" }}
+              onClick={checkTask}
+            />
+          </CardActions>
         </CardContent>
-        <CardActions>
-          <Button size="small">Learn More</Button>
-        </CardActions>
       </Card>
     </Box>
   );
@@ -108,7 +131,7 @@ export const Inputfield: FC<InputfieldProps> = ({
   addTask,
 }) => {
   return (
-    <div style={{ display: "flex", position: "relative" }}>
+    <div style={{ display: "flex", position: "relative", marginBottom: "1em" }}>
       <TextField
         error={textInputError}
         value={textInputValue}
@@ -118,7 +141,7 @@ export const Inputfield: FC<InputfieldProps> = ({
         label="enter your task.."
         id="inputTask"
       />
-      <AddCircleOutlineIcon
+      <AddCircleOutline
         onClick={addTask}
         sx={{
           position: "absolute",
@@ -128,15 +151,15 @@ export const Inputfield: FC<InputfieldProps> = ({
           width: "1.5em",
           height: "1.5em",
         }}
-      ></AddCircleOutlineIcon>
+      ></AddCircleOutline>
     </div>
   );
 };
 
 export default function App() {
   let [tasks, setTasks] = useState([
-    { id: 0, name: "apfel kaufen", isDone: false, isPriority: true },
-    { id: 1, name: "apfel bauen", isDone: false, isPriority: true },
+    { id: 0, name: "apfel kaufen", isDone: false, isPriority: false },
+    { id: 1, name: "apfel bauen", isDone: false, isPriority: false },
     { id: 2, name: "apfel hauen", isDone: false, isPriority: false },
   ]);
   let currentId = tasks.length;
@@ -144,8 +167,11 @@ export default function App() {
   const [textInputValue, setTextInputValue] = useState<string>("");
   const [textInputError, setTextInputError] = useState<boolean>(false);
   const handleChange = (e: any) => setTextInputValue(e.target.value);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
-  const [spacing, setSpacing] = useState(2);
+  function handleClick() {
+    forceUpdate();
+  }
 
   const addTask = () => {
     const newtask = {
@@ -164,6 +190,33 @@ export default function App() {
     }
     console.log(tasks);
   };
+
+  function priorityTask(_id: number) {
+    let taskToPriority = tasks.find((task) => task.id === _id);
+    if (taskToPriority) {
+      taskToPriority.isPriority = !taskToPriority.isPriority;
+
+      if (
+        taskToPriority.isDone === true &&
+        taskToPriority.isPriority === true
+      ) {
+        taskToPriority.isDone = false;
+      }
+      handleClick();
+    }
+  }
+
+  function checkTask(_id: number) {
+    let taskToCheck = tasks.find((task) => task.id === _id);
+    if (taskToCheck) {
+      taskToCheck.isDone = !taskToCheck.isDone;
+
+      if (taskToCheck.isDone === true && taskToCheck.isPriority === true) {
+        taskToCheck.isPriority = false;
+      }
+      handleClick();
+    }
+  }
 
   return (
     <div className="App">
@@ -196,6 +249,8 @@ export default function App() {
                     taskName={task.name}
                     isDone={task.isDone}
                     isPriority={task.isPriority}
+                    checkTask={() => checkTask(task.id)}
+                    priorityTask={() => priorityTask(task.id)}
                   />
                 </Grid>
               ) : null,
@@ -209,6 +264,8 @@ export default function App() {
                     taskName={task.name}
                     isDone={task.isDone}
                     isPriority={task.isPriority}
+                    checkTask={() => checkTask(task.id)}
+                    priorityTask={() => priorityTask(task.id)}
                   />
                 </Grid>
               ) : null,
@@ -222,6 +279,8 @@ export default function App() {
                     taskName={task.name}
                     isDone={task.isDone}
                     isPriority={task.isPriority}
+                    checkTask={() => checkTask(task.id)}
+                    priorityTask={() => priorityTask(task.id)}
                   />
                 </Grid>
               ) : null,
