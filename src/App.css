@@ -76,3 +76,8 @@ header{
   cursor: pointer;
   color: yellow;
  }
+
+ .options:hover{
+    cursor: pointer;
+    color: var(--main-color);
+  }

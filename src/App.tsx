@@ -1,4 +1,4 @@
-import React, { FC, useReducer, useState } from "react";
+import React, { FC, useEffect, useReducer, useState } from "react";
 import "./App.css";
 import {
   Accordion,
@@ -10,19 +10,129 @@ import {
   Card,
   CardActions,
   CardContent,
+  Dialog,
+  DialogTitle,
   Grid,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
   TextField,
   Typography,
 } from "@mui/material";
 import { dunkelColor, mainColor, secondaryColor } from "./colors";
-import { deepOrange } from "@mui/material/colors";
+import { blue, deepOrange, green, orange, red } from "@mui/material/colors";
 import {
   AddCircleOutline,
   ExpandMore,
   CheckCircleOutlineRounded,
   StarBorderRounded,
-  MoreHoriz
+  MoreHoriz,
+  Person,
+  Add,
+  Delete,
+  CalendarViewMonthTwoTone,
+  CalendarViewDay,
+  DocumentScannerTwoTone,
 } from "@mui/icons-material/";
+import { Script } from "vm";
+
+const options = ["deleteTask", "addDiscription", "addDate", "addFile"];
+
+export interface SimpleDialogProps {
+  open: boolean;
+  selectedValue: string;
+  onClose: (value: string) => void;
+  deleteTask: any;
+  addDiscription: () => void;
+  addDate: () => void;
+  addFile: () => void;
+}
+
+function SimpleDialog(props: SimpleDialogProps) {
+  const {
+    onClose,
+    selectedValue,
+    open,
+    deleteTask,
+    addFile,
+    addDate,
+    addDiscription,
+  } = props;
+
+  const handleClose = () => {
+    onClose(selectedValue);
+  };
+
+  const handleListItemClick = (value: string) => {
+    onClose(value);
+  };
+
+  return (
+    <Dialog onClose={handleClose} open={open}>
+      <DialogTitle>Options</DialogTitle>
+      <List sx={{ pt: 0 }}>
+        <ListItem disableGutters>
+          <Box onClick={deleteTask}>
+            <ListItemButton onClick={() => handleListItemClick("deleteTask")}>
+              <ListItemAvatar>
+                <Avatar sx={{ bgcolor: red[100], color: red[600] }}>
+                  <Delete />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText primary="Delete Task" />
+            </ListItemButton>
+          </Box>
+        </ListItem>
+
+        <ListItem disableGutters>
+          <Box onClick={addDiscription}>
+            <ListItemButton
+              onClick={() => handleListItemClick("addDiscription")}
+            >
+              <ListItemAvatar>
+                <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
+                  <Add />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText primary="Add Discription" />
+            </ListItemButton>
+          </Box>
+        </ListItem>
+
+        <ListItem disableGutters>
+          <Box onClick={addDate}>
+            <ListItemButton onClick={() => handleListItemClick("addDate")}>
+              <ListItemAvatar>
+                <Avatar sx={{ bgcolor: orange[100], color: orange[600] }}>
+                  <CalendarViewMonthTwoTone />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText primary="Add Date" />
+            </ListItemButton>
+          </Box>
+        </ListItem>
+
+        <ListItem disableGutters>
+          <Box onClick={addFile}>
+            <ListItemButton
+              autoFocus
+              onClick={() => handleListItemClick("addFile")}
+            >
+              <ListItemAvatar>
+                <Avatar sx={{ bgcolor: green[100], color: green[600] }}>
+                  <DocumentScannerTwoTone />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText primary="Add File" />
+            </ListItemButton>
+          </Box>
+        </ListItem>
+      </List>
+    </Dialog>
+  );
+}
 
 //TASK ARRAY
 
@@ -60,7 +170,7 @@ export type CardFieldNormalProps = {
   isDone: boolean;
   checkTask: any;
   priorityTask: any;
-  //deleteTask: any;
+  handleClickOpen: any;
 };
 
 export const CardfieldNormal: FC<CardFieldNormalProps> = ({
@@ -69,19 +179,22 @@ export const CardfieldNormal: FC<CardFieldNormalProps> = ({
   isDone,
   checkTask,
   priorityTask,
+  handleClickOpen,
 }) => {
   return (
-    <Box
-      sx={{ height: "50%", margin: "1em" }}
-      >
-      <Card variant="outlined" className="Card ">
+    <Box sx={{ height: "50%", margin: "1em"}}>
+      <Card 
+        variant="outlined" 
+        className="Card "
+        sx={{borderRadius:"10%"}}
+        >
         <CardContent
           className={isPriority ? "priorityCard" : ""}
           sx={{
             fontSize: 14,
             backgroundColor: isDone ? secondaryColor : "",
           }}
-          >
+        >
           <Typography color="text.secondary" gutterBottom>
             {isDone ? "Done" : ""}
             {isPriority ? "Important" : ""}
@@ -101,7 +214,7 @@ export const CardfieldNormal: FC<CardFieldNormalProps> = ({
               sx={{
                 position: "absolute",
                 top: ".2em",
-                right: ".1em",
+                right: ".2em",
                 color: isPriority ? "#ffcf40" : "",
               }}
               onClick={priorityTask}
@@ -110,6 +223,11 @@ export const CardfieldNormal: FC<CardFieldNormalProps> = ({
               className="check"
               sx={{ position: "absolute", bottom: ".2em", left: ".1em" }}
               onClick={checkTask}
+            />
+            <MoreHoriz
+              className="options"
+              sx={{ position: "absolute", bottom: ".2em", right: ".2em" }}
+              onClick={handleClickOpen}
             />
           </CardActions>
         </CardContent>
@@ -168,9 +286,46 @@ export default function App() {
   const [textInputError, setTextInputError] = useState<boolean>(false);
   const handleChange = (e: any) => setTextInputValue(e.target.value);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const [openId, setOpen] = useState(-1);
+  const [selectedValue, setSelectedValue] = useState(options[1]);
+
+  useEffect(() => {
+    console.log("UpdatedTasks" , tasks);
+  },[tasks]);
 
   function handleClick() {
     forceUpdate();
+  }
+
+  
+  const handleCklickOpen = (id: number) => {
+    setOpen(id);
+  };
+
+  const handleClose = (value: string) => {
+    setOpen(-1);
+    setSelectedValue(value);
+  };
+
+  
+  function deleteTask(_id: number) {
+    debugger
+    let newTasks = tasks.filter(task => task.id !== _id);
+    setTasks(newTasks);
+    console.log("delete");
+  }
+
+
+  function addFile(){
+    console.log('File added');
+  }
+
+  function addDate(){
+    console.log('Date added');
+  }
+
+  function addDiscription(){
+    console.log('discription added');
   }
 
   const addTask = () => {
@@ -180,12 +335,13 @@ export default function App() {
       isDone: false,
       isPriority: false,
     };
+    debugger
     if (textInputValue === "") {
       setTextInputError(true);
     } else {
       setTextInputError(false);
       setTasks([...tasks, newtask]);
-      console.log(tasks);
+      console.log("added",tasks);
       setTextInputValue("");
     }
     console.log(tasks);
@@ -251,6 +407,16 @@ export default function App() {
                     isPriority={task.isPriority}
                     checkTask={() => checkTask(task.id)}
                     priorityTask={() => priorityTask(task.id)}
+                    handleClickOpen={() => handleCklickOpen(task.id)}
+                  />
+                  <SimpleDialog
+                    selectedValue={selectedValue}
+                    open={task.id === openId}
+                    onClose={handleClose}
+                    deleteTask={() => deleteTask(task.id)}
+                    addDate={addDate}
+                    addDiscription={addDiscription}
+                    addFile={addFile}
                   />
                 </Grid>
               ) : null,
@@ -261,11 +427,21 @@ export default function App() {
               !task.isPriority && !task.isDone ? (
                 <Grid item xs={12} md={4} key={task.id}>
                   <CardfieldNormal
-                    taskName={task.name}
+                    taskName={task.id+''}
                     isDone={task.isDone}
                     isPriority={task.isPriority}
                     checkTask={() => checkTask(task.id)}
                     priorityTask={() => priorityTask(task.id)}
+                    handleClickOpen={() => handleCklickOpen(task.id)}
+                  />
+                  <SimpleDialog
+                    selectedValue={selectedValue}
+                    open={task.id === openId}
+                    onClose={handleClose}
+                    deleteTask={() => deleteTask(task.id)}
+                    addDate={addDate}
+                    addDiscription={addDiscription}
+                    addFile={addFile}
                   />
                 </Grid>
               ) : null,
@@ -276,11 +452,21 @@ export default function App() {
               task.isDone ? (
                 <Grid item xs={12} md={4} key={task.id}>
                   <CardfieldNormal
-                    taskName={task.name}
+                    taskName={task.id+''}
                     isDone={task.isDone}
                     isPriority={task.isPriority}
                     checkTask={() => checkTask(task.id)}
                     priorityTask={() => priorityTask(task.id)}
+                    handleClickOpen={() => handleCklickOpen(task.id)}
+                  />
+                  <SimpleDialog
+                    selectedValue={selectedValue}
+                    open={task.id === openId}
+                    onClose={handleClose}
+                    deleteTask={() => deleteTask(task.id)}
+                    addDate={addDate}
+                    addDiscription={addDiscription}
+                    addFile={addFile}
                   />
                 </Grid>
               ) : null,
