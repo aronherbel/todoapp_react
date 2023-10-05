@@ -185,8 +185,7 @@ export const CardfieldNormal: FC<CardFieldNormalProps> = ({
     <Box sx={{ height: "50%", margin: "1em"}}>
       <Card 
         variant="outlined" 
-        className="Card "
-        sx={{borderRadius:"10%"}}
+        className="Card"
         >
         <CardContent
           className={isPriority ? "priorityCard" : ""}
@@ -309,7 +308,6 @@ export default function App() {
 
   
   function deleteTask(_id: number) {
-    debugger
     let newTasks = tasks.filter(task => task.id !== _id);
     setTasks(newTasks);
     console.log("delete");
@@ -335,7 +333,7 @@ export default function App() {
       isDone: false,
       isPriority: false,
     };
-    debugger
+    
     if (textInputValue === "") {
       setTextInputError(true);
     } else {
@@ -427,7 +425,7 @@ export default function App() {
               !task.isPriority && !task.isDone ? (
                 <Grid item xs={12} md={4} key={task.id}>
                   <CardfieldNormal
-                    taskName={task.id+''}
+                    taskName={task.name}
                     isDone={task.isDone}
                     isPriority={task.isPriority}
                     checkTask={() => checkTask(task.id)}
@@ -452,7 +450,7 @@ export default function App() {
               task.isDone ? (
                 <Grid item xs={12} md={4} key={task.id}>
                   <CardfieldNormal
-                    taskName={task.id+''}
+                    taskName={task.name}
                     isDone={task.isDone}
                     isPriority={task.isPriority}
                     checkTask={() => checkTask(task.id)}
