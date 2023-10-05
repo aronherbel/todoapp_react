@@ -29,14 +29,11 @@ import {
   CheckCircleOutlineRounded,
   StarBorderRounded,
   MoreHoriz,
-  Person,
   Add,
   Delete,
   CalendarViewMonthTwoTone,
-  CalendarViewDay,
   DocumentScannerTwoTone,
 } from "@mui/icons-material/";
-import { Script } from "vm";
 
 const options = ["deleteTask", "addDiscription", "addDate", "addFile"];
 
@@ -182,11 +179,8 @@ export const CardfieldNormal: FC<CardFieldNormalProps> = ({
   handleClickOpen,
 }) => {
   return (
-    <Box sx={{ height: "50%", margin: "1em"}}>
-      <Card 
-        variant="outlined" 
-        className="Card"
-        >
+    <Box sx={{ height: "50%", margin: "1em" }}>
+      <Card variant="outlined" className="Card">
         <CardContent
           className={isPriority ? "priorityCard" : ""}
           sx={{
@@ -273,6 +267,13 @@ export const Inputfield: FC<InputfieldProps> = ({
   );
 };
 
+type Task = {
+  id: number;
+  name: string;
+  isDone: boolean;
+  isPriority: boolean;
+};
+
 export default function App() {
   let [tasks, setTasks] = useState([
     { id: 0, name: "apfel kaufen", isDone: false, isPriority: false },
@@ -289,14 +290,13 @@ export default function App() {
   const [selectedValue, setSelectedValue] = useState(options[1]);
 
   useEffect(() => {
-    console.log("UpdatedTasks" , tasks);
-  },[tasks]);
+    console.log("UpdatedTasks", tasks);
+  }, [tasks]);
 
   function handleClick() {
     forceUpdate();
   }
 
-  
   const handleCklickOpen = (id: number) => {
     setOpen(id);
   };
@@ -306,24 +306,22 @@ export default function App() {
     setSelectedValue(value);
   };
 
-  
-  function deleteTask(_id: number) {
-    let newTasks = tasks.filter(task => task.id !== _id);
+  function deleteTask() {
+    let newTasks = tasks.filter((task) => task.id !== openId);
     setTasks(newTasks);
     console.log("delete");
   }
 
-
-  function addFile(){
-    console.log('File added');
+  function addFile() {
+    console.log("File added");
   }
 
-  function addDate(){
-    console.log('Date added');
+  function addDate() {
+    console.log("Date added");
   }
 
-  function addDiscription(){
-    console.log('discription added');
+  function addDiscription() {
+    console.log("discription added");
   }
 
   const addTask = () => {
@@ -333,13 +331,13 @@ export default function App() {
       isDone: false,
       isPriority: false,
     };
-    
+
     if (textInputValue === "") {
       setTextInputError(true);
     } else {
       setTextInputError(false);
       setTasks([...tasks, newtask]);
-      console.log("added",tasks);
+      console.log("added", tasks);
       setTextInputValue("");
     }
     console.log(tasks);
@@ -372,6 +370,19 @@ export default function App() {
     }
   }
 
+  function RenderTask(task: Task) {
+    return (
+      <CardfieldNormal
+        taskName={task.name}
+        isDone={task.isDone}
+        isPriority={task.isPriority}
+        checkTask={() => checkTask(task.id)}
+        priorityTask={() => priorityTask(task.id)}
+        handleClickOpen={() => handleCklickOpen(task.id)}
+      />
+    );
+  }
+
   return (
     <div className="App">
       <div className="Container">
@@ -399,23 +410,7 @@ export default function App() {
             {tasks.map((task) =>
               task.isPriority ? (
                 <Grid item xs={12} md={4} key={task.id}>
-                  <CardfieldNormal
-                    taskName={task.name}
-                    isDone={task.isDone}
-                    isPriority={task.isPriority}
-                    checkTask={() => checkTask(task.id)}
-                    priorityTask={() => priorityTask(task.id)}
-                    handleClickOpen={() => handleCklickOpen(task.id)}
-                  />
-                  <SimpleDialog
-                    selectedValue={selectedValue}
-                    open={task.id === openId}
-                    onClose={handleClose}
-                    deleteTask={() => deleteTask(task.id)}
-                    addDate={addDate}
-                    addDiscription={addDiscription}
-                    addFile={addFile}
-                  />
+                  {RenderTask(task)}
                 </Grid>
               ) : null,
             )}
@@ -424,23 +419,7 @@ export default function App() {
             {tasks.map((task) =>
               !task.isPriority && !task.isDone ? (
                 <Grid item xs={12} md={4} key={task.id}>
-                  <CardfieldNormal
-                    taskName={task.name}
-                    isDone={task.isDone}
-                    isPriority={task.isPriority}
-                    checkTask={() => checkTask(task.id)}
-                    priorityTask={() => priorityTask(task.id)}
-                    handleClickOpen={() => handleCklickOpen(task.id)}
-                  />
-                  <SimpleDialog
-                    selectedValue={selectedValue}
-                    open={task.id === openId}
-                    onClose={handleClose}
-                    deleteTask={() => deleteTask(task.id)}
-                    addDate={addDate}
-                    addDiscription={addDiscription}
-                    addFile={addFile}
-                  />
+                  {RenderTask(task)}
                 </Grid>
               ) : null,
             )}
@@ -449,27 +428,20 @@ export default function App() {
             {tasks.map((task) =>
               task.isDone ? (
                 <Grid item xs={12} md={4} key={task.id}>
-                  <CardfieldNormal
-                    taskName={task.name}
-                    isDone={task.isDone}
-                    isPriority={task.isPriority}
-                    checkTask={() => checkTask(task.id)}
-                    priorityTask={() => priorityTask(task.id)}
-                    handleClickOpen={() => handleCklickOpen(task.id)}
-                  />
-                  <SimpleDialog
-                    selectedValue={selectedValue}
-                    open={task.id === openId}
-                    onClose={handleClose}
-                    deleteTask={() => deleteTask(task.id)}
-                    addDate={addDate}
-                    addDiscription={addDiscription}
-                    addFile={addFile}
-                  />
+                  {RenderTask(task)}
                 </Grid>
               ) : null,
             )}
           </Grid>
+          <SimpleDialog
+            selectedValue={selectedValue}
+            open={openId !== -1}
+            onClose={handleClose}
+            deleteTask={() => deleteTask()}
+            addDate={addDate}
+            addDiscription={addDiscription}
+            addFile={addFile}
+          />
         </main>
       </div>
     </div>
