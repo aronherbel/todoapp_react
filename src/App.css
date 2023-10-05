@@ -2,22 +2,21 @@
   text-align: center;
 }
 
-:root{
+:root {
   --main-color: #48cae4;
   --secondary-color: #90e0ef;
-  --background-color: #caf0f8; 
+  --background-color: #caf0f8;
   --text-color: black;
   --remove-color: #ef233c;
 }
 
-body{
+body {
   background-image: url("https://4kwallpapers.com/images/wallpapers/macos-monterey-stock-blue-light-layers-5k-4480x2520-5898.jpg");
   width: 100%;
   height: 100%;
 }
 
-
-.Container{
+.Container {
   background-color: var(--background-color);
   border-radius: 2em;
   padding: 2em;
@@ -27,62 +26,62 @@ body{
   box-shadow: rgba(0, 0, 0, 0.5) 3px 3px 5px;
 }
 
-.s-title-color{
+.s-title-color {
   color: var(--main-color);
 }
 
-header{
+header {
   display: flex;
   position: relative;
 }
-.Profile{
- display: inline-block;
- position: absolute;
- top: 0;
- right: 1em;
+.Profile {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  right: 1em;
 }
 
-.seperateLine{
+.seperateLine {
   border-top: solid 2px var(--main-color);
 }
 
-.card{
+.card {
   width: 100%;
   height: 100%;
 }
 
-.disabled{
+.disabled {
   display: none;
 }
 
-.abled{
+.abled {
   display: flex;
 }
 
-.Card{
- position: relative;
+.Card {
+  position: relative;
 }
 
-.priorityCard{
+.priorityCard {
   border: solid 3px var(--main-color);
 }
 
-.check:hover{
- cursor: pointer;
- color: var(--main-color);
+.check:hover {
+  cursor: pointer;
+  color: var(--main-color);
 }
 
-.priorityStar:hover{
+.priorityStar:hover {
   cursor: pointer;
   color: yellow;
- }
+}
 
- .options:hover{
-    cursor: pointer;
-    color: var(--main-color);
-  }
-
-.AddBtn:hover{
+.options:hover {
   cursor: pointer;
-  color: var(--main-color)
+  color: var(--main-color);
+}
+
+.AddBtn:hover {
+  cursor: pointer;
+  color: var(--main-color);
 }

@@ -1,18 +1,11 @@
 import { useEffect, useReducer, useState } from "react";
 import "./App.css";
-import {
-  Avatar,
-  Box,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { Avatar, Box, Grid, Typography } from "@mui/material";
 import { mainColor } from "./colors";
 import { deepOrange } from "@mui/material/colors";
 import { CardfieldNormal } from "./Cardfield";
 import { SimpleDialog, options } from "./Dialog";
 import { Inputfield, InputfieldForInformation } from "./Inputfield";
-
-
 
 //Query talk to backend
 
@@ -26,9 +19,13 @@ type Task = {
 
 export default function App() {
   let [tasks, setTasks] = useState([
-    { id: 0, name: "apfel kaufen", isDone: false, isPriority: false, information:"" },
-    { id: 1, name: "apfel bauen", isDone: false, isPriority: false, information:"" },
-    { id: 2, name: "apfel hauen", isDone: false, isPriority: false, information:""  },
+    {
+      id: 0,
+      name: "apfel kaufen",
+      isDone: false,
+      isPriority: false,
+      information: "",
+    },
   ]);
   let currentId = tasks.length;
 
@@ -37,10 +34,13 @@ export default function App() {
   const handleChange = (e: any) => setTextInputValue(e.target.value);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const [openId, setOpen] = useState(-1);
-  const [showInformationInputforTaskId, setShowInformationInputforTaskId] = useState(-1);
+  const [showInformationInputforTaskId, setShowInformationInputforTaskId] =
+    useState(-1);
   const [selectedValue, setSelectedValue] = useState(options[1]);
-  const [textInputValueInformation, setTextInputValueInformation] = useState<string>("")
-  const handleChangeInformation = (e: any) => setTextInputValueInformation(e.target.value);
+  const [textInputValueInformation, setTextInputValueInformation] =
+    useState<string>("");
+  const handleChangeInformation = (e: any) =>
+    setTextInputValueInformation(e.target.value);
   useEffect(() => {
     console.log("UpdatedTasks", tasks);
   }, [tasks]);
@@ -49,20 +49,21 @@ export default function App() {
     forceUpdate();
   }
 
-  const handleKeyDown = (event:  React.KeyboardEvent<HTMLInputElement>) => {
-    if(event.key === 'Enter'){
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
       addTask();
     }
-  } 
+  };
 
-
-  const handleKeyDownInformation = (event:  React.KeyboardEvent<HTMLInputElement>) => {
-    if(event.key === 'Enter'){
+  const handleKeyDownInformation = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === "Enter") {
       addInformation();
-      let s = 'close'
+      let s = "close";
       discriptionClose(s);
     }
-  } 
+  };
 
   const handleCklickOpen = (id: number) => {
     setOpen(id);
@@ -76,18 +77,12 @@ export default function App() {
   function discriptionOpen(openId: number) {
     setShowInformationInputforTaskId(openId);
     console.log("discription open");
-   
   }
 
-  const discriptionClose = (value: string) =>{
+  const discriptionClose = (value: string) => {
     setShowInformationInputforTaskId(-1);
-    setSelectedValue(value)
-  }
-
-
-
-
-
+    setSelectedValue(value);
+  };
 
   function addFile() {
     console.log("File added");
@@ -97,20 +92,15 @@ export default function App() {
     console.log("Date added");
   }
 
-  
   function addInformation() {
     tasks.forEach((task) => {
       if (task.id === showInformationInputforTaskId) {
         task.information = textInputValueInformation;
       }
     });
-    setTextInputValueInformation('');
-    console.log('information added');
+    setTextInputValueInformation("");
+    console.log("information added");
   }
-
-
-
-
 
   function deleteTask() {
     let newTasks = tasks.filter((task) => task.id !== openId);
@@ -174,7 +164,7 @@ export default function App() {
         checkTask={() => checkTask(task.id)}
         priorityTask={() => priorityTask(task.id)}
         handleClickOpen={() => handleCklickOpen(task.id)}
-        informationInput={task.information}      
+        informationInput={task.information}
       />
     );
   }
@@ -184,7 +174,7 @@ export default function App() {
       <Box className="Container">
         <header>
           <Typography variant="h3" sx={{ color: mainColor }}>
-           Aron's ToDo
+            Aron's ToDo
           </Typography>
           <Box className="Profile">
             <Avatar sx={{ bgcolor: deepOrange[500] }}>N</Avatar>
@@ -206,7 +196,7 @@ export default function App() {
             {tasks.map((task) =>
               task.isPriority ? (
                 <Grid item xs={12} md={4} key={task.id}>
-                  <RenderTask {...task}/>
+                  <RenderTask {...task} />
                 </Grid>
               ) : null,
             )}
@@ -215,7 +205,7 @@ export default function App() {
             {tasks.map((task) =>
               !task.isPriority && !task.isDone ? (
                 <Grid item xs={12} md={4} key={task.id}>
-                  <RenderTask {...task}/>
+                  <RenderTask {...task} />
                 </Grid>
               ) : null,
             )}
@@ -224,7 +214,7 @@ export default function App() {
             {tasks.map((task) =>
               task.isDone ? (
                 <Grid item xs={12} md={4} key={task.id}>
-                  <RenderTask {...task}/>
+                  <RenderTask {...task} />
                 </Grid>
               ) : null,
             )}
@@ -238,14 +228,14 @@ export default function App() {
             discriptionOpen={() => discriptionOpen(openId)}
             addFile={addFile}
           />
-          <InputfieldForInformation 
+          <InputfieldForInformation
             selectedValue={selectedValue}
             open={showInformationInputforTaskId !== -1}
             onClose={discriptionClose}
             addInformation={addInformation}
-            textInputValueInformation={textInputValueInformation} 
+            textInputValueInformation={textInputValueInformation}
             handleKeyDown={handleKeyDownInformation}
-            handleChange={handleChangeInformation}    
+            handleChange={handleChangeInformation}
           />
         </main>
       </Box>
