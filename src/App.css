@@ -81,3 +81,8 @@ header{
     cursor: pointer;
     color: var(--main-color);
   }
+
+.AddBtn:hover{
+  cursor: pointer;
+  color: var(--main-color)
+}

@@ -1,284 +1,34 @@
-import React, { FC, useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import "./App.css";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Avatar,
   Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Dialog,
-  DialogTitle,
   Grid,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemButton,
-  ListItemText,
-  TextField,
   Typography,
 } from "@mui/material";
-import { dunkelColor, mainColor, secondaryColor } from "./colors";
-import { blue, deepOrange, green, orange, red } from "@mui/material/colors";
-import {
-  AddCircleOutline,
-  ExpandMore,
-  CheckCircleOutlineRounded,
-  StarBorderRounded,
-  MoreHoriz,
-  Add,
-  Delete,
-  CalendarViewMonthTwoTone,
-  DocumentScannerTwoTone,
-} from "@mui/icons-material/";
+import { mainColor } from "./colors";
+import { deepOrange } from "@mui/material/colors";
+import { CardfieldNormal } from "./Cardfield";
+import { SimpleDialog, options } from "./Dialog";
+import { Inputfield, InputfieldForInformation } from "./Inputfield";
 
-const options = ["deleteTask", "addDiscription", "addDate", "addFile"];
 
-export interface SimpleDialogProps {
-  open: boolean;
-  selectedValue: string;
-  onClose: (value: string) => void;
-  deleteTask: any;
-  addDiscription: () => void;
-  addDate: () => void;
-  addFile: () => void;
-}
 
-function SimpleDialog(props: SimpleDialogProps) {
-  const {
-    onClose,
-    selectedValue,
-    open,
-    deleteTask,
-    addFile,
-    addDate,
-    addDiscription,
-  } = props;
-
-  const handleClose = () => {
-    onClose(selectedValue);
-  };
-
-  const handleListItemClick = (value: string) => {
-    onClose(value);
-  };
-
-  return (
-    <Dialog onClose={handleClose} open={open}>
-      <DialogTitle>Options</DialogTitle>
-      <List sx={{ pt: 0 }}>
-        <ListItem disableGutters>
-          <Box onClick={deleteTask}>
-            <ListItemButton onClick={() => handleListItemClick("deleteTask")}>
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: red[100], color: red[600] }}>
-                  <Delete />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary="Delete Task" />
-            </ListItemButton>
-          </Box>
-        </ListItem>
-
-        <ListItem disableGutters>
-          <Box onClick={addDiscription}>
-            <ListItemButton
-              onClick={() => handleListItemClick("addDiscription")}
-            >
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
-                  <Add />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary="Add Discription" />
-            </ListItemButton>
-          </Box>
-        </ListItem>
-
-        <ListItem disableGutters>
-          <Box onClick={addDate}>
-            <ListItemButton onClick={() => handleListItemClick("addDate")}>
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: orange[100], color: orange[600] }}>
-                  <CalendarViewMonthTwoTone />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary="Add Date" />
-            </ListItemButton>
-          </Box>
-        </ListItem>
-
-        <ListItem disableGutters>
-          <Box onClick={addFile}>
-            <ListItemButton
-              autoFocus
-              onClick={() => handleListItemClick("addFile")}
-            >
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: green[100], color: green[600] }}>
-                  <DocumentScannerTwoTone />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary="Add File" />
-            </ListItemButton>
-          </Box>
-        </ListItem>
-      </List>
-    </Dialog>
-  );
-}
-
-//TASK ARRAY
-
-//QUERY -> TALK TO BACKEND
-//ON ITINIALIZE FILL ARRAY
-
-//ADDTASK
-//DELETETASK
-//UPDATE (PRIO/DONE)
-export function BasicAccordion() {
-  return (
-    <div>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMore />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-        >
-          <Typography>more</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-            malesuada lacus ex, sit amet blandit leo lobortis eget.
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-    </div>
-  );
-}
-
-export type CardFieldNormalProps = {
-  taskName: string;
-  isPriority: boolean;
-  isDone: boolean;
-  checkTask: any;
-  priorityTask: any;
-  handleClickOpen: any;
-};
-
-export const CardfieldNormal: FC<CardFieldNormalProps> = ({
-  taskName,
-  isPriority,
-  isDone,
-  checkTask,
-  priorityTask,
-  handleClickOpen,
-}) => {
-  return (
-    <Box sx={{ height: "50%", margin: "1em" }}>
-      <Card variant="outlined" className="Card">
-        <CardContent
-          className={isPriority ? "priorityCard" : ""}
-          sx={{
-            fontSize: 14,
-            backgroundColor: isDone ? secondaryColor : "",
-          }}
-        >
-          <Typography color="text.secondary" gutterBottom>
-            {isDone ? "Done" : ""}
-            {isPriority ? "Important" : ""}
-            {!isDone && !isPriority ? "Task" : ""}
-          </Typography>
-          <Typography variant="h5" component="div">
-            {taskName}
-          </Typography>
-          <Typography sx={{ mb: 1.5 }} color="text.secondary"></Typography>
-          <Typography variant="body2">
-            <BasicAccordion />
-            <br />
-          </Typography>
-          <CardActions>
-            <StarBorderRounded
-              className="priorityStar"
-              sx={{
-                position: "absolute",
-                top: ".2em",
-                right: ".2em",
-                color: isPriority ? "#ffcf40" : "",
-              }}
-              onClick={priorityTask}
-            />
-            <CheckCircleOutlineRounded
-              className="check"
-              sx={{ position: "absolute", bottom: ".2em", left: ".1em" }}
-              onClick={checkTask}
-            />
-            <MoreHoriz
-              className="options"
-              sx={{ position: "absolute", bottom: ".2em", right: ".2em" }}
-              onClick={handleClickOpen}
-            />
-          </CardActions>
-        </CardContent>
-      </Card>
-    </Box>
-  );
-};
-
-export type InputfieldProps = {
-  textInputError: boolean;
-  textInputValue: string;
-  handleChange: any;
-  addTask: any;
-};
-export const Inputfield: FC<InputfieldProps> = ({
-  textInputError,
-  textInputValue,
-  handleChange,
-  addTask,
-}) => {
-  return (
-    <div style={{ display: "flex", position: "relative", marginBottom: "1em" }}>
-      <TextField
-        error={textInputError}
-        value={textInputValue}
-        onChange={handleChange}
-        placeholder="new task"
-        fullWidth
-        label="enter your task.."
-        id="inputTask"
-      />
-      <AddCircleOutline
-        onClick={addTask}
-        sx={{
-          position: "absolute",
-          right: ".5em",
-          top: ".46em",
-          padding: "0",
-          width: "1.5em",
-          height: "1.5em",
-        }}
-      ></AddCircleOutline>
-    </div>
-  );
-};
+//Query talk to backend
 
 type Task = {
   id: number;
   name: string;
   isDone: boolean;
   isPriority: boolean;
+  information: string;
 };
 
 export default function App() {
   let [tasks, setTasks] = useState([
-    { id: 0, name: "apfel kaufen", isDone: false, isPriority: false },
-    { id: 1, name: "apfel bauen", isDone: false, isPriority: false },
-    { id: 2, name: "apfel hauen", isDone: false, isPriority: false },
+    { id: 0, name: "apfel kaufen", isDone: false, isPriority: false, information:"" },
+    { id: 1, name: "apfel bauen", isDone: false, isPriority: false, information:"" },
+    { id: 2, name: "apfel hauen", isDone: false, isPriority: false, information:""  },
   ]);
   let currentId = tasks.length;
 
@@ -287,8 +37,10 @@ export default function App() {
   const handleChange = (e: any) => setTextInputValue(e.target.value);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const [openId, setOpen] = useState(-1);
+  const [showInformationInputforTaskId, setShowInformationInputforTaskId] = useState(-1);
   const [selectedValue, setSelectedValue] = useState(options[1]);
-
+  const [textInputValueInformation, setTextInputValueInformation] = useState<string>("")
+  const handleChangeInformation = (e: any) => setTextInputValueInformation(e.target.value);
   useEffect(() => {
     console.log("UpdatedTasks", tasks);
   }, [tasks]);
@@ -296,6 +48,21 @@ export default function App() {
   function handleClick() {
     forceUpdate();
   }
+
+  const handleKeyDown = (event:  React.KeyboardEvent<HTMLInputElement>) => {
+    if(event.key === 'Enter'){
+      addTask();
+    }
+  } 
+
+
+  const handleKeyDownInformation = (event:  React.KeyboardEvent<HTMLInputElement>) => {
+    if(event.key === 'Enter'){
+      addInformation();
+      let s = 'close'
+      discriptionClose(s);
+    }
+  } 
 
   const handleCklickOpen = (id: number) => {
     setOpen(id);
@@ -306,11 +73,21 @@ export default function App() {
     setSelectedValue(value);
   };
 
-  function deleteTask() {
-    let newTasks = tasks.filter((task) => task.id !== openId);
-    setTasks(newTasks);
-    console.log("delete");
+  function discriptionOpen(openId: number) {
+    setShowInformationInputforTaskId(openId);
+    console.log("discription open");
+   
   }
+
+  const discriptionClose = (value: string) =>{
+    setShowInformationInputforTaskId(-1);
+    setSelectedValue(value)
+  }
+
+
+
+
+
 
   function addFile() {
     console.log("File added");
@@ -320,8 +97,25 @@ export default function App() {
     console.log("Date added");
   }
 
-  function addDiscription() {
-    console.log("discription added");
+  
+  function addInformation() {
+    tasks.forEach((task) => {
+      if (task.id === showInformationInputforTaskId) {
+        task.information = textInputValueInformation;
+      }
+    });
+    setTextInputValueInformation('');
+    console.log('information added');
+  }
+
+
+
+
+
+  function deleteTask() {
+    let newTasks = tasks.filter((task) => task.id !== openId);
+    setTasks(newTasks);
+    console.log("delete");
   }
 
   const addTask = () => {
@@ -330,6 +124,7 @@ export default function App() {
       name: textInputValue,
       isDone: false,
       isPriority: false,
+      information: "",
     };
 
     if (textInputValue === "") {
@@ -379,38 +174,39 @@ export default function App() {
         checkTask={() => checkTask(task.id)}
         priorityTask={() => priorityTask(task.id)}
         handleClickOpen={() => handleCklickOpen(task.id)}
+        informationInput={task.information}      
       />
     );
   }
 
   return (
-    <div className="App">
-      <div className="Container">
+    <Box className="App">
+      <Box className="Container">
         <header>
-          <Typography variant="h2" sx={{ color: mainColor }}>
-            Aron'<span style={{ color: dunkelColor }}>s </span> To
-            <span style={{ color: dunkelColor }}>Do</span>
+          <Typography variant="h3" sx={{ color: mainColor }}>
+           Aron's ToDo
           </Typography>
-          <div className="Profile">
+          <Box className="Profile">
             <Avatar sx={{ bgcolor: deepOrange[500] }}>N</Avatar>
             <p style={{ margin: "0" }}>Profile</p>
-          </div>
+          </Box>
         </header>
         <hr className="seperateLine" />
         <main>
-          <div className="Inputfield">
+          <Box className="Inputfield">
             <Inputfield
               textInputError={textInputError}
               textInputValue={textInputValue}
               handleChange={handleChange}
               addTask={addTask}
+              handleKeyDown={handleKeyDown}
             />
-          </div>
+          </Box>
           <Grid container spacing={2}>
             {tasks.map((task) =>
               task.isPriority ? (
                 <Grid item xs={12} md={4} key={task.id}>
-                  {RenderTask(task)}
+                  <RenderTask {...task}/>
                 </Grid>
               ) : null,
             )}
@@ -419,7 +215,7 @@ export default function App() {
             {tasks.map((task) =>
               !task.isPriority && !task.isDone ? (
                 <Grid item xs={12} md={4} key={task.id}>
-                  {RenderTask(task)}
+                  <RenderTask {...task}/>
                 </Grid>
               ) : null,
             )}
@@ -428,7 +224,7 @@ export default function App() {
             {tasks.map((task) =>
               task.isDone ? (
                 <Grid item xs={12} md={4} key={task.id}>
-                  {RenderTask(task)}
+                  <RenderTask {...task}/>
                 </Grid>
               ) : null,
             )}
@@ -439,11 +235,20 @@ export default function App() {
             onClose={handleClose}
             deleteTask={() => deleteTask()}
             addDate={addDate}
-            addDiscription={addDiscription}
+            discriptionOpen={() => discriptionOpen(openId)}
             addFile={addFile}
           />
+          <InputfieldForInformation 
+            selectedValue={selectedValue}
+            open={showInformationInputforTaskId !== -1}
+            onClose={discriptionClose}
+            addInformation={addInformation}
+            textInputValueInformation={textInputValueInformation} 
+            handleKeyDown={handleKeyDownInformation}
+            handleChange={handleChangeInformation}    
+          />
         </main>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
