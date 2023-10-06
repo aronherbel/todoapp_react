@@ -6,8 +6,13 @@ import { deepOrange } from "@mui/material/colors";
 import { CardfieldNormal } from "./Cardfield";
 import { SimpleDialog, options } from "./Dialog";
 import { Inputfield, InputfieldForInformation } from "./Inputfield";
+import { Task } from "@mui/icons-material";
+import DatePickerCalender from "./Calender";
+import dayjs, { Dayjs } from "dayjs";
 
-//Query talk to backend
+// Query talk to backend
+
+const uri: string = "https://localhost:7140/todoitems";
 
 type Task = {
   id: number;
@@ -15,40 +20,59 @@ type Task = {
   isDone: boolean;
   isPriority: boolean;
   information: string;
+  date: Dayjs;
 };
 
 export default function App() {
   let [tasks, setTasks] = useState([
     {
-      id: 0,
-      name: "apfel kaufen",
+      id: -1,
+      name: "",
       isDone: false,
       isPriority: false,
       information: "",
+      date: dayjs(),
     },
   ]);
-  let currentId = tasks.length;
 
   const [textInputValue, setTextInputValue] = useState<string>("");
   const [textInputError, setTextInputError] = useState<boolean>(false);
   const handleChange = (e: any) => setTextInputValue(e.target.value);
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const [openId, setOpen] = useState(-1);
   const [showInformationInputforTaskId, setShowInformationInputforTaskId] =
     useState(-1);
   const [selectedValue, setSelectedValue] = useState(options[1]);
   const [textInputValueInformation, setTextInputValueInformation] =
     useState<string>("");
+    
   const handleChangeInformation = (e: any) =>
     setTextInputValueInformation(e.target.value);
+
   useEffect(() => {
     console.log("UpdatedTasks", tasks);
   }, [tasks]);
 
-  function handleClick() {
-    forceUpdate();
+  useEffect(() => {
+    fetchData();
+  }, [])
+
+  async function fetchData() {
+    try {
+      const response = await fetch(uri);
+
+      if (!response.ok) {
+        throw new Error("die Anfrage war nicht erfolgreich");
+      }
+
+      const data = await response.json();
+      console.log("data is fetched", data);
+      setTasks(data);
+    } catch (error) {
+      console.error("Fehler bei abrufen der Daten", error);
+    }
   }
 
+  
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       addTask();
@@ -56,10 +80,11 @@ export default function App() {
   };
 
   const handleKeyDownInformation = (
+    id: number,
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === "Enter") {
-      addInformation();
+      addInformation(id);
       let s = "close";
       discriptionClose(s);
     }
@@ -88,29 +113,77 @@ export default function App() {
     console.log("File added");
   }
 
-  function addDate() {
-    console.log("Date added");
-  }
+ 
 
-  function addInformation() {
-    tasks.forEach((task) => {
-      if (task.id === showInformationInputforTaskId) {
-        task.information = textInputValueInformation;
+  async function addInformation(id: number) {
+    if (id = showInformationInputforTaskId) {
+      let taskIndex = tasks.findIndex((task) => task.id === id);
+
+      if (taskIndex !== -1) {
+        const newTasks = [...tasks];
+        const taskToAddInformation = newTasks.at(taskIndex)!;
+        newTasks[taskIndex] = {
+          ...taskToAddInformation,
+          information: textInputValueInformation,
+        };
+        try {
+          const response = await fetch(`${uri}/${id}`, {
+            method: "PUT",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newTasks[taskIndex]),
+          });
+
+          if (!response.ok) {
+            throw new Error("Unable to add Information");
+          }
+
+          await fetchData();
+        } catch (error) {
+          console.error("Check task is not available", error);
+        }
       }
-    });
-    setTextInputValueInformation("");
-    console.log("information added");
+      setTextInputValueInformation("");
+      console.log("information added");
+    }
   }
 
-  function deleteTask() {
-    let newTasks = tasks.filter((task) => task.id !== openId);
-    setTasks(newTasks);
-    console.log("delete");
+  async function priorityTask(_id: number) {
+    let taskIndex = tasks.findIndex((task) => task.id === _id);
+    if (taskIndex !== -1) {
+      const newTasks = [...tasks];
+      const taskToPriority = newTasks.at(taskIndex)!;
+      newTasks[taskIndex] = {
+        ...taskToPriority,
+        isPriority: !taskToPriority.isPriority,
+        isDone: false,
+      };
+      setTasks(newTasks);
+      try {
+        const response = await fetch(`${uri}/${_id}`, {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newTasks[taskIndex]),
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to check");
+        }
+
+        await fetchData();
+      } catch (error) {
+        console.error("Check task is not available", error);
+      }
+    }
   }
 
-  const addTask = () => {
+  async function addTask() {
     const newtask = {
-      id: currentId++,
       name: textInputValue,
       isDone: false,
       isPriority: false,
@@ -120,39 +193,78 @@ export default function App() {
     if (textInputValue === "") {
       setTextInputError(true);
     } else {
+      try {
+        const response = await fetch(uri, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newtask),
+        });
+
+        if (!response.ok) {
+          throw new Error("die Anfrage war nicht erfolgreich");
+        }
+
+        await fetchData();
+      } catch (error) {
+        console.error("add task failed", error);
+      }
       setTextInputError(false);
-      setTasks([...tasks, newtask]);
       console.log("added", tasks);
       setTextInputValue("");
     }
     console.log(tasks);
-  };
+  }
 
-  function priorityTask(_id: number) {
-    let taskToPriority = tasks.find((task) => task.id === _id);
-    if (taskToPriority) {
-      taskToPriority.isPriority = !taskToPriority.isPriority;
+  function deleteTask() {
+    fetch(`${uri}/${openId}`, {
+      method: "DELETE",
+    })
+      .then(async () => {
+        await fetchData();
+      })
+      .catch((error) => console.error("Unable to delete item", error));
 
-      if (
-        taskToPriority.isDone === true &&
-        taskToPriority.isPriority === true
-      ) {
-        taskToPriority.isDone = false;
+    console.log("delete");
+  }
+
+  async function checkTask(_id: number) {
+    let taskIndex = tasks.findIndex((task) => task.id === _id);
+    if (taskIndex !== -1) {
+      const newTasks = [...tasks];
+      const taskToDone = newTasks.at(taskIndex)!;
+      newTasks[taskIndex] = {
+        ...taskToDone,
+        isPriority: false,
+        isDone: !taskToDone.isDone,
+      };
+      try {
+        const response = await fetch(`${uri}/${_id}`, {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newTasks[taskIndex]),
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to check");
+        }
+
+        await fetchData();
+      } catch (error) {
+        console.error("Check task is not available", error);
       }
-      handleClick();
+      //setTasks(newTasks);
     }
   }
 
-  function checkTask(_id: number) {
-    let taskToCheck = tasks.find((task) => task.id === _id);
-    if (taskToCheck) {
-      taskToCheck.isDone = !taskToCheck.isDone;
 
-      if (taskToCheck.isDone === true && taskToCheck.isPriority === true) {
-        taskToCheck.isPriority = false;
-      }
-      handleClick();
-    }
+  function addDate() {
+    console.log("Date added");
   }
 
   function RenderTask(task: Task) {
@@ -164,8 +276,8 @@ export default function App() {
         checkTask={() => checkTask(task.id)}
         priorityTask={() => priorityTask(task.id)}
         handleClickOpen={() => handleCklickOpen(task.id)}
-        informationInput={task.information}
-      />
+        informationInput={task.information}   
+        />
     );
   }
 
@@ -193,31 +305,37 @@ export default function App() {
             />
           </Box>
           <Grid container spacing={2}>
-            {tasks.map((task) =>
-              task.isPriority ? (
-                <Grid item xs={12} md={4} key={task.id}>
-                  <RenderTask {...task} />
-                </Grid>
-              ) : null,
-            )}
+            {tasks.length > 0
+              ? tasks.map((task) =>
+                  task.isPriority ? (
+                    <Grid item xs={12} md={4} key={task.id}>
+                      <RenderTask {...task} />
+                    </Grid>
+                  ) : null,
+                )
+              : null}
           </Grid>
           <Grid container spacing={2}>
-            {tasks.map((task) =>
-              !task.isPriority && !task.isDone ? (
-                <Grid item xs={12} md={4} key={task.id}>
-                  <RenderTask {...task} />
-                </Grid>
-              ) : null,
-            )}
+            {tasks.length > 0
+              ? tasks.map((task) =>
+                  !task.isPriority && !task.isDone ? (
+                    <Grid item xs={12} md={4} key={task.id}>
+                      <RenderTask {...task} />
+                    </Grid>
+                  ) : null,
+                )
+              : null}
           </Grid>
           <Grid container spacing={2}>
-            {tasks.map((task) =>
-              task.isDone ? (
-                <Grid item xs={12} md={4} key={task.id}>
-                  <RenderTask {...task} />
-                </Grid>
-              ) : null,
-            )}
+            {tasks.length > 0
+              ? tasks.map((task) =>
+                  task.isDone ? (
+                    <Grid item xs={12} md={4} key={task.id}>
+                      <RenderTask {...task} />
+                    </Grid>
+                  ) : null,
+                )
+              : null}
           </Grid>
           <SimpleDialog
             selectedValue={selectedValue}
@@ -226,17 +344,19 @@ export default function App() {
             deleteTask={() => deleteTask()}
             addDate={addDate}
             discriptionOpen={() => discriptionOpen(openId)}
-            addFile={addFile}
-          />
+            addFile={addFile} 
+            selectedDateOutside={dayjs()}          
+            />
           <InputfieldForInformation
             selectedValue={selectedValue}
             open={showInformationInputforTaskId !== -1}
             onClose={discriptionClose}
-            addInformation={addInformation}
+            addInformation={() => addInformation(showInformationInputforTaskId)}
             textInputValueInformation={textInputValueInformation}
-            handleKeyDown={handleKeyDownInformation}
+            handleKeyDown={(e) => handleKeyDownInformation(openId, e)}
             handleChange={handleChangeInformation}
           />
+          <input type="date"></input>
         </main>
       </Box>
     </Box>

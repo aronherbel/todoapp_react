@@ -7,6 +7,7 @@ import { Box, Card, CardContent, Typography, CardActions } from "@mui/material";
 import { FC } from "react";
 import { BasicAccordion } from "./Accordion";
 import { secondaryColor } from "./colors";
+import dayjs, { Dayjs } from "dayjs";
 
 type CardFieldNormalProps = {
   taskName: string;
@@ -26,6 +27,7 @@ export const CardfieldNormal: FC<CardFieldNormalProps> = ({
   checkTask,
   priorityTask,
   handleClickOpen,
+
 }) => {
   return (
     <Box sx={{ height: "50%", margin: "1em" }}>
@@ -38,14 +40,16 @@ export const CardfieldNormal: FC<CardFieldNormalProps> = ({
           }}
         >
           <Typography color="text.secondary" gutterBottom>
-            {isDone ? "Done" : ""}
-            {isPriority ? "Important" : ""}
-            {!isDone && !isPriority ? "Task" : ""}
+            
           </Typography>
           <Typography variant="h5" component="div">
             {taskName}
           </Typography>
-          <Typography sx={{ mb: 1.5 }} color="text.secondary"></Typography>
+          <Typography sx={{ mb: 1.5 }} color="text.secondary">
+            {isDone ? "Done" : ""}
+            {isPriority ? "Important" : ""}
+            {!isDone && !isPriority ? "Task" : ""}
+          </Typography>
           <Typography variant="body2">
             <BasicAccordion information={informationInput} />
             <br />
