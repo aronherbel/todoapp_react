@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { FC } from "react";
 
+
 type InputfieldProps = {
   textInputError: boolean;
   textInputValue: string;
@@ -39,7 +40,7 @@ export const Inputfield: FC<InputfieldProps> = ({
         fullWidth
         label="enter your task.."
         id="inputTask"
-        sx={{marginBottom:"2em"}}
+        sx={{marginBottom:"2em", backgroundColor:"white"}}
       />
       <AddCircleOutline
         className="AddBtn"

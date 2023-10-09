@@ -65,7 +65,9 @@ export default function App() {
 
       const data = await response.json();
       console.log("data is fetched", data);
-      setTasks(data);
+      const tasksSort = data.sort(compareDates);
+      console.log("sorted", tasksSort);
+      setTasks(tasksSort)
     } catch (error) {
       console.error("Fehler bei abrufen der Daten", error);
     }
@@ -311,6 +313,18 @@ export default function App() {
         />
     );
   }
+
+
+ function compareDates(a: any, b: any) {
+  if(a['date'] === b['date']) {
+    return 0;
+  }
+  else {
+    return (a['date'] < b['date']) ? -1 : 1;
+  }
+ }
+
+
 
   return (
     <Box className="App">

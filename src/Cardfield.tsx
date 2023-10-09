@@ -7,7 +7,6 @@ import { Box, Card, CardContent, Typography, CardActions } from "@mui/material";
 import { FC } from "react";
 import { BasicAccordion } from "./Accordion";
 import { secondaryColor } from "./colors";
-import dayjs, { Dayjs } from "dayjs";
 
 type CardFieldNormalProps = {
   taskName: string;
