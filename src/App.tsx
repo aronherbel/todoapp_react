@@ -1,14 +1,12 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { Avatar, Box, Grid, Typography } from "@mui/material";
 import { mainColor } from "./colors";
 import { deepOrange } from "@mui/material/colors";
 import { CardfieldNormal } from "./Cardfield";
-import { SimpleDialog, options } from "./Dialog";
+import { SimpleDialog, options, selectedDate } from "./Dialog";
 import { Inputfield, InputfieldForInformation } from "./Inputfield";
 import { Task } from "@mui/icons-material";
-import DatePickerCalender from "./Calender";
-import dayjs, { Dayjs } from "dayjs";
 
 // Query talk to backend
 
@@ -20,7 +18,7 @@ type Task = {
   isDone: boolean;
   isPriority: boolean;
   information: string;
-  date: Dayjs;
+  date: string;
 };
 
 export default function App() {
@@ -30,8 +28,8 @@ export default function App() {
       name: "",
       isDone: false,
       isPriority: false,
-      information: "",
-      date: dayjs(),
+      information: "noInformation",
+      date: "nodate",
     },
   ]);
 
@@ -44,6 +42,7 @@ export default function App() {
   const [selectedValue, setSelectedValue] = useState(options[1]);
   const [textInputValueInformation, setTextInputValueInformation] =
     useState<string>("");
+  
     
   const handleChangeInformation = (e: any) =>
     setTextInputValueInformation(e.target.value);
@@ -188,6 +187,7 @@ export default function App() {
       isDone: false,
       isPriority: false,
       information: "",
+      date: "",
     };
 
     if (textInputValue === "") {
@@ -263,9 +263,39 @@ export default function App() {
   }
 
 
-  function addDate() {
-    console.log("Date added");
-  }
+  async function addDate(id: number, selectedDate: string) {
+      let taskIndex = tasks.findIndex((task) => task.id === id);
+
+      if (taskIndex !== -1) {
+        const newTasks = [...tasks];
+        const taskToAddDate = newTasks.at(taskIndex)!;
+        newTasks[taskIndex] = {
+          ...taskToAddDate,
+          date : selectedDate,
+        };
+        try {
+          const response = await fetch(`${uri}/${id}`, {
+            method: "PUT",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newTasks[taskIndex]),
+          });
+
+          if (!response.ok) {
+            throw new Error("Unable to add Information");
+          }
+
+          await fetchData();
+        } catch (error) {
+          console.error("Check task is not available", error);
+        }
+      }
+      console.log("dateAdded ", selectedDate, id )
+    }
+   
+
 
   function RenderTask(task: Task) {
     return (
@@ -276,7 +306,8 @@ export default function App() {
         checkTask={() => checkTask(task.id)}
         priorityTask={() => priorityTask(task.id)}
         handleClickOpen={() => handleCklickOpen(task.id)}
-        informationInput={task.information}   
+        informationInput={task.information} 
+        date={task.date}           
         />
     );
   }
@@ -342,10 +373,9 @@ export default function App() {
             open={openId !== -1}
             onClose={handleClose}
             deleteTask={() => deleteTask()}
-            addDate={addDate}
+            addDate={() => addDate(openId, selectedDate)}
             discriptionOpen={() => discriptionOpen(openId)}
-            addFile={addFile} 
-            selectedDateOutside={dayjs()}          
+            addFile={addFile}          
             />
           <InputfieldForInformation
             selectedValue={selectedValue}
@@ -356,7 +386,6 @@ export default function App() {
             handleKeyDown={(e) => handleKeyDownInformation(openId, e)}
             handleChange={handleChangeInformation}
           />
-          <input type="date"></input>
         </main>
       </Box>
     </Box>

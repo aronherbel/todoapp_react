@@ -16,19 +16,18 @@ import {
   ListItemText,
 } from "@mui/material";
 import { red, blue, orange, green } from "@mui/material/colors";
-import DatePickerCalender from "./Calender";
-import { Dayjs } from "dayjs";
+
 
 export const options = ["deleteTask", "addDiscription", "addDate", "addFile"];
+export let selectedDate = "Today"
 
 interface SimpleDialogProps {
   open: boolean;
   selectedValue: string;
   onClose: (value: string) => void;
-  deleteTask: any;
-  selectedDateOutside: Dayjs;
+  deleteTask: () => void;
   discriptionOpen: () => void;
-  addDate: () => void;
+  addDate: (selectedDate: string) => void;
   addFile: () => void;
 }
 
@@ -41,7 +40,6 @@ export function SimpleDialog(props: SimpleDialogProps) {
     addFile,
     addDate,
     discriptionOpen,
-    selectedDateOutside,
   } = props;
 
   const handleClose = () => {
@@ -51,6 +49,12 @@ export function SimpleDialog(props: SimpleDialogProps) {
   const handleListItemClick = (value: string) => {
     onClose(value);
   };
+
+  function combinedFunctionAddDate(event: { target: { value: any; }; }) {
+    selectedDate = event.target.value;
+    addDate(selectedDate);
+    onClose(selectedValue);
+  }
 
   return (
     <Dialog onClose={handleClose} open={open}>
@@ -85,7 +89,7 @@ export function SimpleDialog(props: SimpleDialogProps) {
         </ListItem>
 
         <ListItem disableGutters>
-          <Box onClick={addDate} sx={{ width: "100%" }}>
+          <Box sx={{ width: "100%" }}>
             <ListItemButton>
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: orange[100], color: orange[600] }}>
@@ -93,8 +97,7 @@ export function SimpleDialog(props: SimpleDialogProps) {
                 </Avatar>
               </ListItemAvatar>
               <ListItemText>
-                <DatePickerCalender
-                />
+                <input type="date" onChange={combinedFunctionAddDate}></input>
               </ListItemText>
             </ListItemButton>
           </Box>

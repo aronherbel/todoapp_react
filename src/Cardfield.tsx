@@ -14,6 +14,7 @@ type CardFieldNormalProps = {
   isPriority: boolean;
   isDone: boolean;
   informationInput: string;
+  date: string;
   checkTask: () => void;
   priorityTask: () => void;
   handleClickOpen: () => void;
@@ -24,6 +25,7 @@ export const CardfieldNormal: FC<CardFieldNormalProps> = ({
   isPriority,
   isDone,
   informationInput,
+  date,
   checkTask,
   priorityTask,
   handleClickOpen,
@@ -40,7 +42,7 @@ export const CardfieldNormal: FC<CardFieldNormalProps> = ({
           }}
         >
           <Typography color="text.secondary" gutterBottom>
-            
+            {isDone ?  "" : date}
           </Typography>
           <Typography variant="h5" component="div">
             {taskName}
@@ -51,7 +53,7 @@ export const CardfieldNormal: FC<CardFieldNormalProps> = ({
             {!isDone && !isPriority ? "Task" : ""}
           </Typography>
           <Typography variant="body2">
-            <BasicAccordion information={informationInput} />
+            <BasicAccordion information={ !isDone ? informationInput : ""} />
             <br />
           </Typography>
           <CardActions>
