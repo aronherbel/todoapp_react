@@ -90,30 +90,38 @@ export const InputfieldForInformation: FC<InputfieldForInformationProps> = ({
     handleListItemClick("addInformation");
   };
   return (
-    <Dialog onClose={discriptionClose} open={open}>
-      <DialogTitle>Information</DialogTitle>
-      <List sx={{ pt: 0 }}>
-        <ListItem disableGutters>
-          <Box sx={{ width: "100%" }}>
-            <ListItemButton>
-              <ListItemAvatar>
-                <Avatar>
-                  <Add onClick={combined} />
-                </Avatar>
-              </ListItemAvatar>
-              <TextField
-                value={textInputValueInformation}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-                placeholder="new enter"
-                fullWidth
-                label="enter your task.."
-                id="inputTask"
-              />
-            </ListItemButton>
-          </Box>
-        </ListItem>
-      </List>
-    </Dialog>
+    <Dialog onClose={discriptionClose} open={open} fullWidth maxWidth="sm">
+  <DialogTitle>Information</DialogTitle>
+  <List sx={{ pt: 0 }}>
+    <ListItem disableGutters>
+      <Box sx={{ width: "100%" }}>
+        <ListItemButton>
+          <ListItemAvatar>
+            <Avatar sx={{ backgroundColor: "#007bff", color: "#fff" }}>
+              <Add onClick={combined} />
+            </Avatar>
+          </ListItemAvatar>
+          <TextField
+            value={textInputValueInformation}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Enter new information"
+            fullWidth
+            variant="outlined"
+            label="Enter your information.."
+            id="inputInformation"
+            sx={{ marginBottom: "1em" }}
+          />
+        </ListItemButton>
+      </Box>
+    </ListItem>
+  </List>
+  <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+    <Button onClick={discriptionClose} variant="outlined">
+      Close
+    </Button>
+  </Box>
+</Dialog>
+
   );
 };

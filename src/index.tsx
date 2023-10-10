@@ -3,15 +3,18 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import {Login} from "./login";
+import Login from "./login";
+import Todomain from "./todomain";
+
+
+
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
 root.render(
   <React.StrictMode>
-    <Login emailInputValue={""} passwordInputValue={""}/>
-    <App />
+    <Todomain />
   </React.StrictMode>,
 );
 

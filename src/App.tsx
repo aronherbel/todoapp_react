@@ -7,6 +7,7 @@ import { CardfieldNormal } from "./Cardfield";
 import { SimpleDialog, options, selectedDate } from "./Dialog";
 import { Inputfield, InputfieldForInformation } from "./Inputfield";
 import { Task } from "@mui/icons-material";
+import ProfileDialog, { optionsProfileDialog } from "./ProfileDialog";
 
 // Query talk to backend
 
@@ -42,7 +43,8 @@ export default function App() {
   const [selectedValue, setSelectedValue] = useState(options[1]);
   const [textInputValueInformation, setTextInputValueInformation] =
     useState<string>("");
-  
+  const [selectedValueProfileDialog, setSelectedValueProfileDialog] = useState(optionsProfileDialog[1]);  
+  const [openProfileDialogId, setOpenProfileDialogId] = useState<boolean>(false)
     
   const handleChangeInformation = (e: any) =>
     setTextInputValueInformation(e.target.value);
@@ -98,6 +100,15 @@ export default function App() {
   const handleClose = (value: string) => {
     setOpen(-1);
     setSelectedValue(value);
+  };
+
+  const handleCklickOpenProfileDialog = () => {
+    setOpenProfileDialogId(true);
+  };
+
+  const handleCloseProfileDialog = (value: string) => {
+    setOpenProfileDialogId(false);
+    setSelectedValueProfileDialog(value);
   };
 
   function discriptionOpen(openId: number) {
@@ -324,22 +335,23 @@ export default function App() {
   }
  }
 
+ 
 
 
   return (
     <Box className="App">
       <Box className="Container">
-        <header>
+        <header style={{display: "flex", justifyContent: "center"}}>
           <Typography variant="h3" sx={{ color: mainColor }}>
             Aron's ToDo
           </Typography>
-          <Box className="Profile">
+          <Box className="Profile" sx={{marginTop: ".1em"}} onClick={()=> handleCklickOpenProfileDialog()}>
             <Avatar sx={{ bgcolor: deepOrange[500] }}>N</Avatar>
             <p style={{ margin: "0" }}>Profile</p>
           </Box>
         </header>
         <hr className="seperateLine" />
-        <main>
+        <main style={{marginTop:"2em"}}>
           <Box className="Inputfield">
             <Inputfield
               textInputError={textInputError}
@@ -399,6 +411,13 @@ export default function App() {
             textInputValueInformation={textInputValueInformation}
             handleKeyDown={(e) => handleKeyDownInformation(openId, e)}
             handleChange={handleChangeInformation}
+          />
+          <ProfileDialog 
+            openProfileDialog={openProfileDialogId !== false} 
+            selectedValueProfileDialog={selectedValueProfileDialog} 
+            setSelectedValueProfileDialog={setSelectedValueProfileDialog}
+            onClose={handleCloseProfileDialog}
+            handleOpen={() => handleCklickOpenProfileDialog()}
           />
         </main>
       </Box>
