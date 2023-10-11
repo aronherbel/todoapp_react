@@ -19,14 +19,16 @@ const uriLogin: string = "https://localhost:7140/users/authenticate";
 
 type LoginProps = {
   setLogedIn: (bool: boolean) => void;
+  setCurrentUser: (userName: string) => void;
+  setPasswordForCurrentUser: (userPassword: string) => void;
 };
 
-export default function Login({setLogedIn} : LoginProps) {
+export default function Login({setLogedIn, setCurrentUser, setPasswordForCurrentUser} : LoginProps) {
   const [showPassword, setShowPassword] = useState(false);
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  
 
  async function accountLogin() {
     let hashedPassword: string = Md5.hashStr(password);
@@ -46,7 +48,9 @@ export default function Login({setLogedIn} : LoginProps) {
 
       if(responseData.statusCode === 200){
         setLogedIn(true);
-        console.log("your logged in with: ", userName)
+        setCurrentUser(userName);
+        setPasswordForCurrentUser(hashedPassword);
+        console.log("your logged in with: ", userName);
       } else {
       console.error("Your password or user name are not correct");
       }

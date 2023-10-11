@@ -125,3 +125,136 @@ export const InputfieldForInformation: FC<InputfieldForInformationProps> = ({
 
   );
 };
+
+
+
+type InputfieldForChangeNameProps = {
+  open: boolean;
+  selectedValue: string;
+  textInputValueForChangeName: string;
+  onClose: (value: string) => void;
+  addNewUserName: () => void;
+  handleChange: any;
+};
+
+export const InputfieldForChangeName: FC<InputfieldForChangeNameProps> = ({
+  open,
+  selectedValue,
+  textInputValueForChangeName,
+  handleChange,
+  onClose,
+  addNewUserName,
+}) => {
+  const ChangeNameClose = () => {
+    onClose(selectedValue);
+  };
+
+  const handleListItemClick = (value: string) => {
+    onClose(value);
+  };
+
+  const combined = () => {
+    addNewUserName();
+    handleListItemClick("new Name");
+  };
+  return (
+    <Dialog onClose={ChangeNameClose} open={open} fullWidth maxWidth="sm">
+  <DialogTitle>Change Username</DialogTitle>
+  <List sx={{ pt: 0 }}>
+    <ListItem disableGutters>
+      <Box sx={{ width: "100%" }}>
+        <ListItemButton>
+          <ListItemAvatar>
+            <Avatar sx={{ backgroundColor: "#007bff", color: "#fff" }}>
+              <Add onClick={combined} />
+            </Avatar>
+          </ListItemAvatar>
+          <TextField
+            value={textInputValueForChangeName}
+            onChange={handleChange}
+            placeholder="Enter new username"
+            fullWidth
+            variant="outlined"
+            label="Enter new username"
+            id="inputChangeName"
+            sx={{ marginBottom: "1em" }}
+          />
+        </ListItemButton>
+      </Box>
+    </ListItem>
+  </List>
+  <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+    <Button onClick={ChangeNameClose} variant="outlined">
+      Close
+    </Button>
+  </Box>
+</Dialog>
+
+  );
+};
+
+
+type InputfieldForChangePasswordProps = {
+  open: boolean;
+  selectedValue: string;
+  textInputValueForChangePassword: string;
+  onClose: (value: string) => void;
+  addNewUserPassword: () => void;
+  handleChange: any;
+};
+
+export const InputfieldForChangePassword: FC<InputfieldForChangePasswordProps> = ({
+  open,
+  selectedValue,
+  textInputValueForChangePassword,
+  handleChange,
+  onClose,
+  addNewUserPassword,
+}) => {
+  const ChangePasswordClose = () => {
+    onClose(selectedValue);
+  };
+
+  const handleListItemClick = (value: string) => {
+    onClose(value);
+  };
+
+  const combined = () => {
+    addNewUserPassword();
+    handleListItemClick("new Name");
+  };
+  return (
+    <Dialog onClose={ChangePasswordClose} open={open} fullWidth maxWidth="sm">
+  <DialogTitle>Change Password</DialogTitle>
+  <List sx={{ pt: 0 }}>
+    <ListItem disableGutters>
+      <Box sx={{ width: "100%" }}>
+        <ListItemButton>
+          <ListItemAvatar>
+            <Avatar sx={{ backgroundColor: "#007bff", color: "#fff" }}>
+              <Add onClick={combined} />
+            </Avatar>
+          </ListItemAvatar>
+          <TextField
+            value={textInputValueForChangePassword}
+            onChange={handleChange}
+            placeholder="Enter new password"
+            fullWidth
+            variant="outlined"
+            label="Enter new password"
+            id="inputChangePassword"
+            sx={{ marginBottom: "1em" }}
+          />
+        </ListItemButton>
+      </Box>
+    </ListItem>
+  </List>
+  <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+    <Button onClick={ChangePasswordClose} variant="outlined">
+      Close
+    </Button>
+  </Box>
+</Dialog>
+
+  );
+};

@@ -1,17 +1,20 @@
-import { useEffect, useState } from "react";
+import { KeyboardEvent, useEffect, useState } from "react";
 import "./App.css";
 import { Avatar, Box, Grid, Typography } from "@mui/material";
 import { mainColor } from "./colors";
 import { deepOrange } from "@mui/material/colors";
 import { CardfieldNormal } from "./Cardfield";
 import { SimpleDialog, options, selectedDate } from "./Dialog";
-import { Inputfield, InputfieldForInformation } from "./Inputfield";
+import { Inputfield, InputfieldForChangeName, InputfieldForChangePassword, InputfieldForInformation } from "./Inputfield";
 import { Task } from "@mui/icons-material";
 import ProfileDialog, { optionsProfileDialog } from "./ProfileDialog";
+import { debug, profile } from "console";
+import { Md5 } from "ts-md5";
 
 // Query talk to backend
 
 const uri: string = "https://localhost:7140/todoitems";
+const userUri: string = "https://localhost:7140/users"
 
 type Task = {
   id: number;
@@ -22,7 +25,21 @@ type Task = {
   date: string;
 };
 
-export default function App() {
+type User = {
+  userId: number;
+  userName: string;
+  Password: string;
+}
+
+type LoginProps = {
+  setLogedIn: (bool: boolean) => void;
+  setCurrentUser:(userName: string) => void;
+  setPasswordForCurrentUser:(userPassword: string) => void;
+  currentUser: string;
+  passwordForCurrentUser: string;
+};
+
+export default function App({setLogedIn, setPasswordForCurrentUser, setCurrentUser, currentUser, passwordForCurrentUser}: LoginProps) {
   let [tasks, setTasks] = useState([
     {
       id: -1,
@@ -33,6 +50,13 @@ export default function App() {
       date: "nodate",
     },
   ]);
+  let [users, setUsers] = useState([
+    {
+      userId: -1,
+      userName: "",
+      Password: "" 
+    }
+  ])
 
   const [textInputValue, setTextInputValue] = useState<string>("");
   const [textInputError, setTextInputError] = useState<boolean>(false);
@@ -40,14 +64,27 @@ export default function App() {
   const [openId, setOpen] = useState(-1);
   const [showInformationInputforTaskId, setShowInformationInputforTaskId] =
     useState(-1);
+  const [showChangeNameInputfield, setShowChangeNameInputfield] =
+    useState(false);
+  const [showChangePasswordInputfield, setShowChangePasswordInputfield] =
+    useState(false);
   const [selectedValue, setSelectedValue] = useState(options[1]);
   const [textInputValueInformation, setTextInputValueInformation] =
     useState<string>("");
+  const [textInputValueForChangeName, setTextInputValueForChangeName] =
+    useState<string>(currentUser);
+  const [textInputValueForChangePassword, setTextInputValueForChangePassword] =
+    useState<string>("");
   const [selectedValueProfileDialog, setSelectedValueProfileDialog] = useState(optionsProfileDialog[1]);  
   const [openProfileDialogId, setOpenProfileDialogId] = useState<boolean>(false)
-    
   const handleChangeInformation = (e: any) =>
     setTextInputValueInformation(e.target.value);
+  const handleChangeName = (e: any) =>
+    setTextInputValueForChangeName(e.target.value);
+  const handleChangePassword = (e: any) =>
+    setTextInputValueForChangePassword(e.target.value);
+  
+ 
 
   useEffect(() => {
     console.log("UpdatedTasks", tasks);
@@ -55,7 +92,32 @@ export default function App() {
 
   useEffect(() => {
     fetchData();
+    fetchDataForUsers();
   }, [])
+
+  useEffect(() => {
+    console.log("currentUserName changed: ",currentUser);
+  }, [currentUser]);
+
+  
+
+
+  async function fetchDataForUsers() {
+    try {
+      const response = await fetch(userUri);
+
+      if (!response.ok) {
+        throw new Error("die Anfrage war nicht erfolgreich");
+      }
+
+      const data = await response.json();
+      console.log("Users are fetched", data);
+      setUsers(data)
+    } catch (error) {
+      console.error("Fehler bei abrufen der Daten", error);
+    }
+  }
+
 
   async function fetchData() {
     try {
@@ -109,6 +171,17 @@ export default function App() {
   const handleCloseProfileDialog = (value: string) => {
     setOpenProfileDialogId(false);
     setSelectedValueProfileDialog(value);
+  };
+  const handleCloseChangeName = (value: string) => {
+    setShowChangeNameInputfield(false);
+    setSelectedValue(value);
+    setTextInputValueForChangeName("");
+  };
+
+  const handleCloseChangePassword = (value: string) => {
+    setShowChangePasswordInputfield(false);
+    setSelectedValue(value);
+    setTextInputValueForChangePassword("");
   };
 
   function discriptionOpen(openId: number) {
@@ -307,8 +380,100 @@ export default function App() {
       }
       console.log("dateAdded ", selectedDate, id )
     }
-   
 
+
+  function changeUserName(){
+    setShowChangeNameInputfield(true);
+    }
+  
+  function changeUserPassword(){
+    setShowChangePasswordInputfield(true);
+    }  
+
+  function addNewUserName(){
+    console.log("addNewUserName wurde aufgerufen")
+    updateUserName();
+  }  
+
+  function addNewUserPassword(){
+    console.log("addNewUserPassword wurde aufgerufen")
+    updateUserPassword();
+  }  
+
+  async function updateUserPassword(){
+   
+    console.log("update userpassword wurde aufgerufen ")
+    const hashedPassword: string = Md5.hashStr(textInputValueForChangePassword);
+    let userIndex = users.findIndex((user) => user.userName === currentUser)
+    userIndex = userIndex;
+    if(userIndex !== -1){
+      const newUsers = [...users];
+        const UserToChangePassword = newUsers.at(userIndex)!;
+        newUsers[userIndex] = {
+          ...UserToChangePassword,
+          userName : currentUser,
+          Password: hashedPassword
+        };
+        setPasswordForCurrentUser(hashedPassword)
+        try {
+          const response = await fetch(`${userUri}/${userIndex}`, {
+            method: "PUT",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newUsers[userIndex]),
+          });
+
+          if (!response.ok) {
+            throw new Error("Unable to update user");
+          }
+
+          await fetchDataForUsers();
+        } catch (error) {
+          console.error("update user not available", error);
+        }
+    }
+  }
+   
+  async function updateUserName(){
+    
+    console.log("update username wurde aufgerufen ")
+    let userIndex = users.findIndex((user) => user.userName === currentUser)
+    userIndex = userIndex;
+    if(userIndex !== -1){
+      const newUsers = [...users];
+        const UserToChangeName = newUsers.at(userIndex)!;
+        newUsers[userIndex] = {
+          ...UserToChangeName,
+          userName : textInputValueForChangeName,
+          Password: passwordForCurrentUser
+        };
+        setCurrentUser(textInputValueForChangeName)
+        try {
+          const response = await fetch(`${userUri}/${userIndex}`, {
+            method: "PUT",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newUsers[userIndex]),
+          });
+
+          if (!response.ok) {
+            throw new Error("Unable to update user");
+          }
+
+          await fetchDataForUsers();
+        } catch (error) {
+          console.error("update user not available", error);
+        }
+    }
+    
+    
+
+  }
+  
 
   function RenderTask(task: Task) {
     return (
@@ -335,7 +500,7 @@ export default function App() {
   }
  }
 
- 
+ let profileLetter = currentUser[0];
 
 
   return (
@@ -346,8 +511,7 @@ export default function App() {
             Aron's ToDo
           </Typography>
           <Box className="Profile" sx={{marginTop: ".1em"}} onClick={()=> handleCklickOpenProfileDialog()}>
-            <Avatar sx={{ bgcolor: deepOrange[500] }}>N</Avatar>
-            <p style={{ margin: "0" }}>Profile</p>
+            <Avatar sx={{ bgcolor: deepOrange[500] }}>{profileLetter}</Avatar>
           </Box>
         </header>
         <hr className="seperateLine" />
@@ -412,13 +576,34 @@ export default function App() {
             handleKeyDown={(e) => handleKeyDownInformation(openId, e)}
             handleChange={handleChangeInformation}
           />
+          <Box sx={{position:"absolute", top:"3.8em", right:"4em"}}>
           <ProfileDialog 
-            openProfileDialog={openProfileDialogId !== false} 
-            selectedValueProfileDialog={selectedValueProfileDialog} 
-            setSelectedValueProfileDialog={setSelectedValueProfileDialog}
-            onClose={handleCloseProfileDialog}
-            handleOpen={() => handleCklickOpenProfileDialog()}
+              openProfileDialog={openProfileDialogId !== false}
+              selectedValueProfileDialog={selectedValueProfileDialog}
+              setSelectedValueProfileDialog={setSelectedValueProfileDialog}
+              onClose={handleCloseProfileDialog}
+              handleOpen={() => handleCklickOpenProfileDialog()}
+              setLogedIn={setLogedIn}
+              changeUserName={changeUserName} 
+              changeUserPassword={changeUserPassword}        
+            />
+          <InputfieldForChangeName 
+            open={showChangeNameInputfield !== false} 
+            selectedValue={selectedValue} 
+            textInputValueForChangeName={textInputValueForChangeName} 
+            onClose={handleCloseChangeName} 
+            addNewUserName={addNewUserName} 
+            handleChange={handleChangeName}          
           />
+          <InputfieldForChangePassword 
+            open={showChangePasswordInputfield !== false} 
+            selectedValue={selectedValue} 
+            textInputValueForChangePassword={textInputValueForChangePassword} 
+            onClose={handleCloseChangePassword} 
+            addNewUserPassword={addNewUserPassword} 
+            handleChange={handleChangePassword}          
+          />
+          </Box>
         </main>
       </Box>
     </Box>
